@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+    crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <title>Dashboard</title>
+</head>
+<style>
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 3rem
+}
+
+
+
+</style>
+<body>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark ">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">UIPEP</a>
+
+
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown float-right">
+          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-user"></i> tara
+
+          </a>
+
+        </li>
+        <input type="text" id="found" placeholder="Search.." onclick="searchTag()">
+        <input name="submit2" type="submit" id="submit2" value="log out"  onclick="logoutPressed()">
+      </ul>
+    </div>
+    </div>
+  </nav>
+
+  <!-- header -->
+
+
+  <!-- <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+  </head> -->
+
+  <body onload="fetchBookmarks()">
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+
+        </nav>
+        <h3 class="text-muted"></h3>
+      </div>
+
+      <div class="jumbotron">
+        
+        <form id="myForm">
+          <div class="form-group">
+            
+            ​<textarea type="txtArea" rows="10" cols="110" id="siteName" placeholder="content"></textarea>
+            <!-- <input type="text" class="form-control" id="siteName" placeholder="content"> -->
+          </div>
+
+          <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-12">
+          <div id="bookmarksResults"></div>
+        </div>
+      </div>
+
+
+
+    </div>
+    <!-- /container -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+    </form>
+    </div>
+
+    </div>
+    </div>
+
+
+    <script>
+
+      // Listen for form submit
+      document.getElementById('myForm').addEventListener('submit', saveBookmark);
+
+      // Save Bookmark
+      function saveBookmark(e) {
+        // Get form values
+        var siteName = document.getElementById('siteName').value;
+        var tagArr = findHashtags(siteName);
+
+        // if(!validateForm(siteName)){
+        //   return false;
+        // }
+        //object
+        var bookmark = {
+          name: siteName,
+          date: new Date(),
+          tags: tagArr
+        }
+
+        /*
+          // Local Storage Test
+          localStorage.setItem('test', 'Hello World');//save
+          console.log(localStorage.getItem('test'));//get item fromlocalstroage
+          localStorage.removeItem('test');//remove fromlocal stroage
+          console.log(localStorage.getItem('test'));
+        */
+
+        // Test if bookmarks is null
+        if (localStorage.getItem('bookmarks') === null) {
+          // Init array
+          var bookmarks = [];
+          // Add to array
+          bookmarks.push(bookmark);
+          // Set to localStorage
+          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        } else {
+          // Get bookmarks from localStorage
+          var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+          // Add bookmark to array
+          bookmarks.push(bookmark);
+          // Re-set back to localStorage
+          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        }
+
+        // Clear form
+        document.getElementById('myForm').reset();
+
+        // Re-fetch bookmarks
+        fetchBookmarks();
+
+        // Prevent form from submitting
+        e.preventDefault();
+      }
+
+      // // Delete bookmark
+      // function deleteBookmark(url){
+      //   // Get bookmarks from localStorage
+      //   var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+      //   // Loop throught bookmarks
+      //   for(var i =0;i < bookmarks.length;i++){
+      //     if(bookmarks[i].url == url){
+      //       // Remove from array
+      //       bookmarks.splice(i, 1);
+      //     }
+      //   }
+      //   // Re-set back to localStorage
+      //   localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
+      // Re-fetch bookmarks
+      fetchBookmarks();
+
+
+      // Fetch bookmarks
+      function fetchBookmarks() {
+        // Get bookmarks from localStorage
+        if (localStorage.bookmarks) {
+          var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+        }
+        else {
+          var bookmarks = [];
+        }
+
+        //sort by date
+        sortArray(bookmarks);
+
+        // Get output id
+        var bookmarksResults = document.getElementById('bookmarksResults');
+
+        // Build output
+        bookmarksResults.innerHTML = '';
+        for (var i = 0; i < bookmarks.length; i++) {
+          var name = bookmarks[i].name;
+
+          bookmarksResults.innerHTML += '<div class="jumbotron">' +
+            '<h3>' + name +
+            //  ' <a class="btn btn-default" target="_blank href="'+url+'">Visit</a> ' +
+            // ' <a onclick="deleteBookmark(\''+url+'\')" class="btn btn-danger" href="#">Delete</a> ' +
+            '</h3>' +
+            '</div>';
+        }
+      }
+
+      // // Validate Form
+      // function validateForm(siteName, siteUrl){
+      //   if(!siteName || !siteUrl){
+      //     alert('Please fill in the form');
+      //     return false;
+      //   }
+
+      //   var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+      //   var regex = new RegExp(expression);
+
+      //   if(!siteUrl.match(regex)){
+      //     alert('Please use a valid URL');
+      //     return false;
+      //   }
+
+      //   return true;
+
+      // }
+       
+     function logoutPressed(){
+       localStorage.removeItem('session');
+       window.location.href='signup.1.html';
+
+     }
+
+     function sortArray(array){
+        array.sort(function(a,b){
+          return new Date(b.date) - new Date(a.date);
+        });
+      }
+
+
+
+
+
+
+      function findHashtags(searchText) {
+        var regexp = /\#\w\w+\b/g
+        result = searchText.match(regexp);
+
+        return result;
+      }
+
+      document.getElementById("found").addEventListener("keyup", function searchTag() {
+        var tag = document.getElementById('found').value;
+        var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+        bookmarksResults.innerHTML = '';
+        for (var i = 0; i < bookmarks.length; i++) {
+          var name = bookmarks[i].name;
+          var tags = bookmarks[i].tags;
+          if (tags != null) {
+          for (var j = 0; j < tags.length; j++) {
+            if (tags[j].includes(tag)) {
+              bookmarksResults.innerHTML += '<div class="jumbotron">' +
+                '<h3>' + name +
+                
+                '</h3>' +
+                '</div>';
+                break;
+            }
+          }
+
+
+        }
+        
+      }
+
+      });
+
+ </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <footer id="main-footer" class="bg-light text-dark mt-5 p-5">
+      <div class="conatiner">
+        <div class="row">
+          <div class="col">
+            <p class="lead text-center"> &copy; UIPEP Technologies 2018</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+      crossorigin="anonymous"></script>
+  </body>
+
+</html>
